@@ -41,6 +41,6 @@ for entry in entries:
     title = entry.title
     body = extractor.extract(get_html.get_html(url))
     news_db.append_news(published, url, title, body);
-    break; # HTML取得を1件だけでやめる
+#    break; # HTML取得を1件だけでやめる
 news_db.insert();
 

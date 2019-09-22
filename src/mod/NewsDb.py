@@ -45,7 +45,7 @@ from news,latest
 where news.published=latest.max_published;
 '''
     def __insert_sql(self): 
-        return 'insert or fail into news(published,url,title,body) values(?,?,?,?)'
+        return 'insert or ignore into news(published,url,title,body) values(?,?,?,?)'
     def append_news(self, published, url, title, body):
         self.news.append((published, url, title, body))
     def insert(self):
@@ -55,16 +55,6 @@ where news.published=latest.max_published;
             self.news = sorted(self.news, key=operator.itemgetter(0), reverse=True) # 第1キー: 公開日時降順
             self.conn.cursor().executemany(self.__insert_sql(), self.news)
             self.conn.commit()
-        except sqlite3.IntegrityError as err_sql_integ:
-            import traceback
-            import sys
-            msg = str(err_sql_integ.with_traceback(sys.exc_info()[2])).lower() # UNIQUE constraint failed: news.published, news.url
-            # DB既存と重複した時点で中断する
-            if ('UNIQUE'.lower() in msg and 'published' in msg and 'url' in msg): pass
-            # それ以外ならエラー表示＆ロールバックする
-            else: 
-                traceback.print_exc()
-                self.conn.rollback() 
         except: # それ以外
             import traceback
             traceback.print_exc()
