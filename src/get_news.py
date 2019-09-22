@@ -33,7 +33,8 @@ db_dir_path = sys.argv[2] if (2 < len(sys.argv)) else os.getcwd()
 
 entries = feedparser.parse(rss).entries
 news_db = NewsDb.NewsDb(db_dir_path)
-extractor = HtmlContentExtractor.HtmlContentExtractor()
+#extractor = HtmlContentExtractor.HtmlContentExtractor()
+extractor = HtmlContentExtractor.HtmlContentExtractor(option={"threshold":50})
 for entry in entries:
     published = get_iso_8601(entry.published)
     url = entry.link
