@@ -2,29 +2,24 @@
 # coding: utf8
 import sys
 import os
-from readability.readability import Document
-import html2text
+import extractcontent3
 
 class HtmlContentExtractor:
     def __init__(self, option=None):
         self.__html = None
         self.__text = None
-        self.__md = None
-    @property
-    def Title(self): return self.__title
+        self.__extractor = extractcontent3.ExtractContent()
+        if option is not None: self.__extractor.set_option(option) # option = {"threshold":50}
     @property
     def Html(self): return self.__html
     @property
-    def Markdown(self): return self.__md
-    @property
     def Text(self): return self.__text
     def extract(self, html):
-        # https://github.com/buriy/python-readability/blob/master/readability/readability.py
-        doc = Document(html)
-        self.__title = doc.title()
-        self.__html = doc.summary()
-        self.__md = html2text.html2text(self.__html)
-        self.__text = self.__format_to_text(self.__html)
+        self.__extractor.analyse(html)
+#        text, title = extractor.as_text()
+        self.__html, title = self.__extractor.as_html()
+#        title = extractor.extract_title(html)
+        self.__text = self.__format_to_text(html)
         return self.__text
     def __format_to_text(self, html):
         import re
@@ -40,4 +35,9 @@ class HtmlContentExtractor:
 #        st = re.sub(r"&(.*?);", lambda x: self.CHARREF.get(x.group(1), x.group()), st)
         st = re.sub(r"[ \t]+", " ", st)
         return st.rstrip("\n\t ")
+    def __show_meta(self):
+        print('extractcontent3 メタ情報')
+        print(extractcontent3.__version__)
+        print(extractcontent3.__file__)
+        print(dir(extractcontent3))
 

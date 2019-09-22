@@ -1,0 +1,6 @@
+beautifulsoup4==4.8.0
+extractcontent3==0.0.2
+feedparser==5.2.1
+html2text==2019.8.11
+readability-lxml==0.7.1
+selenium==3.141.0
