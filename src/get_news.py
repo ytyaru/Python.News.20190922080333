@@ -4,26 +4,13 @@
 # 第1引数: 必須。RSS URL
 # 第2引数: 任意。DB出力ディレクトリパス（デフォルト＝カレントディレクトリ）
 import feedparser
-import datetime
-import time
 import sys
 import os
 from mod import get_html
 from mod import NewsDb
 from mod import NewsImagesDb
 from mod import HtmlContentExtractor
-
-# RSS/Atomの日付テキストをISO-8601にして返す
-def get_iso_8601(date_str):
-    try: return (datetime.datetime
-            .strptime(date_str, 
-                      '%a, %d %b %Y %H:%M:%S %z')
-            .strftime('%Y-%m-%dT%H:%M:%SZ%z'))
-    except ValueError as ve: 
-        return (datetime.datetime
-            .strptime(date_str, 
-                      '%Y-%m-%dT%H:%M:%SZ%z')
-            .strftime('%Y-%m-%dT%H:%M:%SZ%z'))
+from mod import DateTimeString
 
 if len(sys.argv) < 2:
     raise Error('第1引数にRSSのURLを指定してください。')
@@ -35,8 +22,16 @@ entries = feedparser.parse(rss).entries
 news_db = NewsDb.NewsDb(db_dir_path)
 #extractor = HtmlContentExtractor.HtmlContentExtractor()
 extractor = HtmlContentExtractor.HtmlContentExtractor(option={"threshold":50})
+dtcnv = DateTimeString.DateTimeString()
 for entry in entries:
-    published = get_iso_8601(entry.published)
+    # RDF形式のときpublishedがない。代わりにupdatedがある
+#    published = get_iso_8601(entry.published)
+#    published = get_iso_8601(entry.published if hasattr(entry, 'published') else entry.updated)
+    published = dtcnv.convert_utc((
+            entry.published 
+            if hasattr(entry, 'published') 
+            else entry.updated)
+        ).strftime('%Y-%m-%dT%H:%M:%SZ')
     url = entry.link
     title = entry.title
     body = extractor.extract(get_html.get_html(url))
