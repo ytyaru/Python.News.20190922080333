@@ -6,7 +6,6 @@ class NewsDb:
     def __init__(self, root):
         path = os.path.join(root, 'news.db')
         self.conn = sqlite3.connect(path)
-#        self.conn.row_factory = sqlite3.Row
         self.create_table()
         self.news = []
     def __del__(self): self.conn.close()
@@ -45,11 +44,6 @@ select
 from news,latest
 where news.published=latest.max_published;
 '''
-    def is_exists(self, published, url):
-        count = (self.conn.cursor().execute(
-            'select count(*) from news where published=? and url=?;'
-            ,(published, url)).fetchone()[0])
-        return False if 0 == count else True
     def __insert_sql(self): 
         return 'insert or ignore into news(published,url,title,body) values(?,?,?,?)'
     def append_news(self, published, url, title, body):

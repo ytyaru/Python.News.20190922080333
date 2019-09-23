@@ -25,8 +25,6 @@ extractor = HtmlContentExtractor.HtmlContentExtractor(option={"threshold":50})
 dtcnv = DateTimeString.DateTimeString()
 for entry in entries:
     # RDF形式のときpublishedがない。代わりにupdatedがある
-#    published = get_iso_8601(entry.published)
-#    published = get_iso_8601(entry.published if hasattr(entry, 'published') else entry.updated)
     published = dtcnv.convert_utc((
             entry.published 
             if hasattr(entry, 'published') 
@@ -34,6 +32,7 @@ for entry in entries:
         ).strftime('%Y-%m-%dT%H:%M:%SZ')
     url = entry.link
     title = entry.title
+    if news_db.is_exists(published,url): continue
     body = extractor.extract(get_html.get_html(url))
     news_db.append_news(published, url, title, body);
 #    break; # HTML取得を1件だけでやめる
